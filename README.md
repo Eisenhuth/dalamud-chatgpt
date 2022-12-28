@@ -10,6 +10,8 @@ get it here: https://github.com/Eisenhuth/TrustworthyDalamudPlugins
 
 **requires an API key** - click the button in the configuration which leads here: https://beta.openai.com/account/api-keys
 
+to increase the quality of your results take a look at the [official documentation on prompt design](https://beta.openai.com/docs/guides/completion/prompt-design)
+
 
 `/gpt tell me something about the award winning MMORPG Final Fantasy XIV and format the text`
 
