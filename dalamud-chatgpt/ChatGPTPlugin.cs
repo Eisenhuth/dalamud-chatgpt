@@ -77,7 +77,6 @@ namespace xivgpt
             var responseJson = JObject.Parse(responseBody);
             var text = (string) responseJson.SelectToken("choices[0].text");
             
-            //the response might contain line breaks so we remove them
             if (text != null)
             {
                 if(configLineBreaks)
@@ -99,7 +98,6 @@ namespace xivgpt
             ImGui.Separator();
             
             ImGui.InputText("API Key", ref configKey, 60, ImGuiInputTextFlags.Password);
-            //ImGui.InputText("API Key", ref configKey, 32);
 
             if (ImGui.Button("Get API Key"))
             {
