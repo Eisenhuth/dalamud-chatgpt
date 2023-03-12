@@ -1,11 +1,11 @@
-﻿using System.Diagnostics;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
 using Dalamud.IoC;
+using Dalamud.Utility;
 using ImGuiNET;
 using Newtonsoft.Json.Linq;
 
@@ -102,12 +102,7 @@ namespace xivgpt
             if (ImGui.Button("Get API Key"))
             {
                 const string apiKeysUrl = "https://beta.openai.com/account/api-keys";
-                var processStartInfo = new ProcessStartInfo
-                {
-                    UseShellExecute = true,
-                    FileName = apiKeysUrl
-                };
-                Process.Start(processStartInfo);
+                Util.OpenLink(apiKeysUrl);
             }
 
             ImGui.Checkbox("remove line breaks from responses", ref configLineBreaks);
