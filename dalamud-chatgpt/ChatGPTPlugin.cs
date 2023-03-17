@@ -101,7 +101,7 @@ namespace xivgpt
 
             if (ImGui.Button("Get API Key"))
             {
-                const string apiKeysUrl = "https://beta.openai.com/account/api-keys";
+                const string apiKeysUrl = "https://platform.openai.com/account/api-keys";
                 Util.OpenLink(apiKeysUrl);
             }
 
