@@ -1,6 +1,8 @@
-﻿using System.Net.Http;
+﻿using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
@@ -25,7 +27,9 @@ namespace xivgpt
         [PluginService] private static CommandManager CommandManager { get; set; } = null!;
 
         private string configKey;
+        private int configMaxTokens;
         private bool configLineBreaks;
+        private bool configAdditionalInfo;
         
         public ChatGPTPlugin([RequiredVersion("1.0")] DalamudPluginInterface dalamudPluginInterface, [RequiredVersion("1.0")] ChatGui chatGui, [RequiredVersion("1.0")] CommandManager commandManager)
         {
@@ -68,7 +72,7 @@ namespace xivgpt
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", configuration.ApiKey);
 
-            var requestBody = $"{{\"model\": \"{Configuration.Model}\", \"prompt\": \"{input}\", \"max_tokens\": 256}}";
+            var requestBody = $"{{\"model\": \"{Configuration.Model}\", \"prompt\": \"{input}\", \"max_tokens\": {configuration.MaxTokens}}}";
             var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
             
             var response = await client.PostAsync(Configuration.Endpoint, content);
@@ -81,8 +85,17 @@ namespace xivgpt
             {
                 if(configLineBreaks)
                     text = text.Replace("\r", "").Replace("\n", "");
-
-                chatGui.Print($"ChatGPT prompt: {input}{text}");
+                
+                const int chunkSize = 1000;
+                var regex = new Regex(@".{1," + chunkSize + @"}(\s+|$)"); //jesus take the wheel
+                var chunks = regex.Matches(text).Select(match => match.Value);
+                chunks = chunks.ToList();
+                
+                if(configAdditionalInfo)
+                    chatGui.Print($"ChatGPT \nprompt: {input}\nmodel: {Configuration.Model}\nmax_tokens: {configMaxTokens}\nresponse length: {text.Length}\nchunks: {chunks.Count()}");
+                
+                foreach (var chunk in chunks)
+                    chatGui.Print($"ChatGPT: {chunk}");
             }
         }
 
@@ -96,7 +109,9 @@ namespace xivgpt
             ImGui.Begin($"{Name} Configuration", ref drawConfiguration);
             
             ImGui.Separator();
-            
+            ImGui.Checkbox("remove line breaks from responses", ref configLineBreaks);
+            ImGui.Checkbox("show additional info", ref configAdditionalInfo);
+            ImGui.InputInt("max_tokens", ref configMaxTokens);
             ImGui.InputText("API Key", ref configKey, 60, ImGuiInputTextFlags.Password);
 
             if (ImGui.Button("Get API Key"))
@@ -105,8 +120,6 @@ namespace xivgpt
                 Util.OpenLink(apiKeysUrl);
             }
 
-            ImGui.Checkbox("remove line breaks from responses", ref configLineBreaks);
-            
             ImGui.Separator();        
 
             
@@ -129,13 +142,17 @@ namespace xivgpt
         private void LoadConfiguration()
         {
             configKey = configuration.ApiKey;
+            configMaxTokens = configuration.MaxTokens != 0 ? configuration.MaxTokens : 256;
             configLineBreaks = configuration.RemoveLineBreaks;
+            configAdditionalInfo = configuration.ShowAdditionalInfo;
         }
 
         private void SaveConfiguration()
         {
             configuration.ApiKey = configKey;
+            configuration.MaxTokens = configMaxTokens;
             configuration.RemoveLineBreaks = configLineBreaks;
+            configuration.ShowAdditionalInfo = configAdditionalInfo;
             
             PluginInterface.SavePluginConfig(configuration);
         }
