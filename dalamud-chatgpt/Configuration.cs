@@ -6,7 +6,7 @@ namespace xivgpt
     public class Configuration : IPluginConfiguration
     {
         public int Version { get; set; }
-        public bool RemoveLineBreaks { get; set; } = false;
+        public bool RemoveLineBreaks { get; set; }
         public bool ShowAdditionalInfo { get; set; }
         public string ApiKey { get; set; } = "";
         public int MaxTokens { get; set; }

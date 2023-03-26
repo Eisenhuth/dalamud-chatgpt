@@ -70,9 +70,9 @@ namespace xivgpt
         private async Task SendPrompt(string input)
         {
             var client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", configuration.ApiKey);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", configKey);
 
-            var requestBody = $"{{\"model\": \"{Configuration.Model}\", \"prompt\": \"{input}\", \"max_tokens\": {configuration.MaxTokens}}}";
+            var requestBody = $"{{\"model\": \"{Configuration.Model}\", \"prompt\": \"{input}\", \"max_tokens\": {configMaxTokens}}}";
             var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
             
             var response = await client.PostAsync(Configuration.Endpoint, content);
@@ -92,10 +92,29 @@ namespace xivgpt
                 chunks = chunks.ToList();
                 
                 if(configAdditionalInfo)
-                    chatGui.Print($"ChatGPT \nprompt: {input}\nmodel: {Configuration.Model}\nmax_tokens: {configMaxTokens}\nresponse length: {text.Length}\nchunks: {chunks.Count()}");
+                    chatGui.Print($"ChatGPT>>\nprompt: {input}" +
+                                  $"\nmodel: {Configuration.Model}" +
+                                  $"\nmax_tokens: {configMaxTokens}" +
+                                  $"\nresponse length: {text.Length}" +
+                                  $"\nchunks: {chunks.Count()}");
                 
                 foreach (var chunk in chunks)
                     chatGui.Print($"ChatGPT: {chunk}");
+            }
+            else
+            {
+                var errorMessage = "ChatGPT>> Error: text is null";
+
+                if (configAdditionalInfo)
+                {
+                    errorMessage += $"\nmodel: {Configuration.Model}" +
+                                    $"\nmax_tokens: {configMaxTokens}" +
+                                    $"\nresponse code: {(int) response.StatusCode} - {response.StatusCode}";
+                }
+                else
+                    errorMessage += "\nYou can enable additional info in the configuration. If the issue persists, please report it on github.";
+
+                chatGui.Print(errorMessage);
             }
         }
 
@@ -108,22 +127,32 @@ namespace xivgpt
             
             ImGui.Begin($"{Name} Configuration", ref drawConfiguration);
             
-            ImGui.Separator();
-            ImGui.Checkbox("remove line breaks from responses", ref configLineBreaks);
-            ImGui.Checkbox("show additional info", ref configAdditionalInfo);
-            ImGui.InputInt("max_tokens", ref configMaxTokens);
-            ImGui.InputText("API Key", ref configKey, 60, ImGuiInputTextFlags.Password);
-
-            if (ImGui.Button("Get API Key"))
+            ImGui.Text("currently used model:");
+            ImGui.SameLine();
+            if (ImGui.SmallButton($"GPT-3.5/{Configuration.Model}"))
+            {
+                const string modelsDocs = "https://platform.openai.com/docs/models/gpt-3-5";
+                Util.OpenLink(modelsDocs);
+            }
+            ImGui.Spacing();
+            ImGui.InputText("API key", ref configKey, 60, ImGuiInputTextFlags.Password);
+            ImGui.SameLine();
+            if (ImGui.SmallButton("get API key"))
             {
                 const string apiKeysUrl = "https://platform.openai.com/account/api-keys";
                 Util.OpenLink(apiKeysUrl);
             }
-
-            ImGui.Separator();        
-
-            
-            
+            ImGui.Spacing();
+            ImGui.SliderInt("max_tokens", ref configMaxTokens, 8, 4096);
+            ImGui.SameLine();
+            if (ImGui.SmallButton("learn more"))
+            {
+                const string conceptsDocs = "https://platform.openai.com/docs/introduction/key-concepts";
+                Util.OpenLink(conceptsDocs);
+            }
+            ImGui.Separator();
+            ImGui.Checkbox("remove line breaks from responses", ref configLineBreaks);
+            ImGui.Checkbox("show additional info", ref configAdditionalInfo);
             if (ImGui.Button("Save and Close"))
             {
                 SaveConfiguration();
