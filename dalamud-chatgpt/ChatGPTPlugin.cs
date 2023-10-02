@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Dalamud.Game.Command;
-using Dalamud.Game.Gui;
 using Dalamud.IoC;
 using Dalamud.Utility;
 using ImGuiNET;
@@ -14,6 +13,7 @@ using Newtonsoft.Json.Linq;
 namespace xivgpt
 {
     using Dalamud.Plugin;
+    using Dalamud.Plugin.Services;
 
     public class ChatGPTPlugin : IDalamudPlugin
     {
@@ -22,16 +22,16 @@ namespace xivgpt
         private static bool drawConfiguration;
         
         private Configuration configuration;
-        private ChatGui chatGui;
+        private IChatGui chatGui;
         [PluginService] private static DalamudPluginInterface PluginInterface { get; set; } = null!;
-        [PluginService] private static CommandManager CommandManager { get; set; } = null!;
+        [PluginService] private static ICommandManager CommandManager { get; set; } = null!;
 
         private string configKey;
         private int configMaxTokens;
         private bool configLineBreaks;
         private bool configAdditionalInfo;
         
-        public ChatGPTPlugin([RequiredVersion("1.0")] DalamudPluginInterface dalamudPluginInterface, [RequiredVersion("1.0")] ChatGui chatGui, [RequiredVersion("1.0")] CommandManager commandManager)
+        public ChatGPTPlugin([RequiredVersion("1.0")] DalamudPluginInterface dalamudPluginInterface, [RequiredVersion("1.0")] IChatGui chatGui, [RequiredVersion("1.0")] ICommandManager commandManager)
         {
             this.chatGui = chatGui;
 
