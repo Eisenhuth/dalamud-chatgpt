@@ -11,7 +11,7 @@ namespace xivgpt
         public string ApiKey { get; set; } = "";
         public int MaxTokens { get; set; }
         public const string Endpoint = "https://api.openai.com/v1/completions";
-        public const string Model = "text-davinci-003";
+        public const string Model = "gpt-3.5-turbo-instruct";
 
 
         private DalamudPluginInterface pluginInterface;
