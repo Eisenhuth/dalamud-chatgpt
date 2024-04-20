@@ -5,7 +5,9 @@ created mostly because I thought it would be funny.
 
 # installation
 get it here: https://github.com/Eisenhuth/TrustworthyDalamudPlugins
-
+```
+https://raw.githubusercontent.com/Eisenhuth/TrustworthyDalamudPlugins/master/pluginmaster.json
+```
 # usage
 
 **requires an API key** - click the button in the configuration which leads here: https://platform.openai.com/account/api-keys
