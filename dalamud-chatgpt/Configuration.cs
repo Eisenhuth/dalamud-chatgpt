@@ -8,10 +8,11 @@ namespace xivgpt
         public int Version { get; set; }
         public bool RemoveLineBreaks { get; set; }
         public bool ShowAdditionalInfo { get; set; }
+        public bool ShowPrompt { get; set; }
         public string ApiKey { get; set; } = "";
         public int MaxTokens { get; set; }
-        public const string Endpoint = "https://api.openai.com/v1/completions";
-        public const string Model = "gpt-3.5-turbo-instruct";
+        public const string Endpoint = "https://api.openai.com/v1/chat/completions";
+        public const string Model = "gpt-4o";
 
 
         private DalamudPluginInterface pluginInterface;

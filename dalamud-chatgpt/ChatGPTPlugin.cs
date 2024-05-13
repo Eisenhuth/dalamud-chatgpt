@@ -30,6 +30,7 @@ namespace xivgpt
         private int configMaxTokens;
         private bool configLineBreaks;
         private bool configAdditionalInfo;
+        private bool configShowPrompt;
         
         public ChatGPTPlugin([RequiredVersion("1.0")] DalamudPluginInterface dalamudPluginInterface, [RequiredVersion("1.0")] IChatGui chatGui, [RequiredVersion("1.0")] ICommandManager commandManager)
         {
@@ -45,7 +46,7 @@ namespace xivgpt
             
             commandManager.AddHandler(commandName, new CommandInfo(GPTCommand)
             {
-                HelpMessage = "/gpt whatever you want to ask ChatGPT/OpenAI's completion API",
+                HelpMessage = "/gpt whatever you want to ask ChatGPT/OpenAI's completion API\n/gpt cfg → open the configuration window",
                 ShowInHelp = true
             });
         }
@@ -64,6 +65,12 @@ namespace xivgpt
                 return;
             }
 
+            if (args == "cfg")
+            {
+                OpenConfig();
+                return;
+            }
+
             Task.Run(() => SendPrompt(args));
         }
 
@@ -72,14 +79,27 @@ namespace xivgpt
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", configKey);
 
-            var requestBody = $"{{\"model\": \"{Configuration.Model}\", \"prompt\": \"{input}\", \"max_tokens\": {configMaxTokens}}}";
+            const string systemPrompt = "You are interacting through the in-game chat of the MMORPG Final Fantasy XIV, as such your responses can only be displayed as simple text without any markup.";
+
+            
+            var requestBody = "{" +
+                              $"\"model\": \"{Configuration.Model}\"," +
+                              "\"messages\":" +
+                              "[" +
+                                $"{{\"role\": \"system\",\"content\": \"{systemPrompt}\"}}, " +
+                                $"{{\"role\": \"user\", \"content\": \"{input}\"}}" +
+                              "]," +
+                              $"\"max_tokens\": {configMaxTokens}" +
+                              "}";
+            
+            
             var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
             
             var response = await client.PostAsync(Configuration.Endpoint, content);
             var responseBody = await response.Content.ReadAsStringAsync();
             
             var responseJson = JObject.Parse(responseBody);
-            var text = (string) responseJson.SelectToken("choices[0].text");
+            var text = (string) responseJson.SelectToken("choices[0].message.content");
             
             if (text != null)
             {
@@ -97,6 +117,9 @@ namespace xivgpt
                                   $"\nmax_tokens: {configMaxTokens}" +
                                   $"\nresponse length: {text.Length}" +
                                   $"\nchunks: {chunks.Count()}");
+                
+                if(configShowPrompt)
+                    chatGui.Print($"ChatGPT Prompt: {input}");
                 
                 foreach (var chunk in chunks)
                     chatGui.Print($"ChatGPT: {chunk}");
@@ -129,9 +152,9 @@ namespace xivgpt
             
             ImGui.Text("currently used model:");
             ImGui.SameLine();
-            if (ImGui.SmallButton($"GPT-3.5/{Configuration.Model}"))
+            if (ImGui.SmallButton($"{Configuration.Model}"))
             {
-                const string modelsDocs = "https://platform.openai.com/docs/models/gpt-3-5";
+                const string modelsDocs = "https://platform.openai.com/docs/models/gpt-4o";
                 Util.OpenLink(modelsDocs);
             }
             ImGui.Spacing();
@@ -152,6 +175,7 @@ namespace xivgpt
             }
             ImGui.Separator();
             ImGui.Checkbox("remove line breaks from responses", ref configLineBreaks);
+            ImGui.Checkbox("show prompt in chat", ref configShowPrompt);
             ImGui.Checkbox("show additional info", ref configAdditionalInfo);
             if (ImGui.Button("Save and Close"))
             {
