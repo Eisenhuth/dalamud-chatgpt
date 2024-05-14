@@ -81,7 +81,7 @@ namespace xivgpt
 
             const string systemPrompt = "You are interacting through the in-game chat of the MMORPG Final Fantasy XIV, as such your responses can only be displayed as simple text without any markup.";
 
-            
+            input = Regex.Replace(input, @"(\\[^\n]|""|')", "");
             var requestBody = "{" +
                               $"\"model\": \"{Configuration.Model}\"," +
                               "\"messages\":" +
