@@ -23,7 +23,7 @@ namespace xivgpt
         
         private Configuration configuration;
         private IChatGui chatGui;
-        [PluginService] private static DalamudPluginInterface PluginInterface { get; set; } = null!;
+        [PluginService] private static IDalamudPluginInterface PluginInterface { get; set; } = null!;
         [PluginService] private static ICommandManager CommandManager { get; set; } = null!;
 
         private string configKey;
@@ -32,7 +32,7 @@ namespace xivgpt
         private bool configAdditionalInfo;
         private bool configShowPrompt;
         
-        public ChatGPTPlugin([RequiredVersion("1.0")] DalamudPluginInterface dalamudPluginInterface, [RequiredVersion("1.0")] IChatGui chatGui, [RequiredVersion("1.0")] ICommandManager commandManager)
+        public ChatGPTPlugin(IDalamudPluginInterface dalamudPluginInterface, IChatGui chatGui, ICommandManager commandManager)
         {
             this.chatGui = chatGui;
 

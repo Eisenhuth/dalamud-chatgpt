@@ -15,9 +15,9 @@ namespace xivgpt
         public const string Model = "gpt-4o";
 
 
-        private DalamudPluginInterface pluginInterface;
+        private IDalamudPluginInterface pluginInterface;
 
-        public void Initialize(DalamudPluginInterface pInterface)
+        public void Initialize(IDalamudPluginInterface pInterface)
         {
             pluginInterface = pInterface;
         }
