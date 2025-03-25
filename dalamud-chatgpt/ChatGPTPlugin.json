@@ -3,7 +3,7 @@
   "Name": "ChatGPT for FFXIV",
   "Description": "Lets you interact with ChatGPT through the in-game chat. Configuration requires an API key.",
   "Punchline": "has science gone too far?",
-  "Changelog": "- updated for Dalamud api11",
+  "Changelog": "- updated for Dalamud api12",
   "InternalName": "ChatGPTPlugin",
   "Tags": ["ui", "chat", "ai"],
   "RepoUrl": "https://github.com/Eisenhuth/dalamud-chatgpt"
