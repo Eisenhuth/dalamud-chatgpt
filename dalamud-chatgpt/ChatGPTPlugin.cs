@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Utility;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using Newtonsoft.Json.Linq;
 
 namespace xivgpt
@@ -43,6 +43,7 @@ namespace xivgpt
             
             dalamudPluginInterface.UiBuilder.Draw += DrawConfiguration;
             dalamudPluginInterface.UiBuilder.OpenConfigUi += OpenConfig;
+            dalamudPluginInterface.UiBuilder.OpenMainUi += OpenConfig;
             
             commandManager.AddHandler(commandName, new CommandInfo(GPTCommand)
             {
