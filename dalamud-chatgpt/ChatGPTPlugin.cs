@@ -8,6 +8,7 @@ using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Utility;
 using Dalamud.Bindings.ImGui;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace xivgpt
@@ -83,24 +84,36 @@ namespace xivgpt
             const string systemPrompt = "You are interacting through the in-game chat of the MMORPG Final Fantasy XIV, as such your responses can only be displayed as simple text without any markup.";
 
             input = Regex.Replace(input, @"(\\[^\n]|""|')", "");
-            var requestBody = "{" +
-                              $"\"model\": \"{Configuration.Model}\"," +
-                              "\"messages\":" +
-                              "[" +
-                                $"{{\"role\": \"system\",\"content\": \"{systemPrompt}\"}}, " +
-                                $"{{\"role\": \"user\", \"content\": \"{input}\"}}" +
-                              "]," +
-                              $"\"max_tokens\": {configMaxTokens}" +
-                              "}";
             
+            var payload = new
+            {
+                model = Configuration.Model,
+                input = $"{systemPrompt}\n\nUser: {input}",
+                max_output_tokens = configMaxTokens,
+                reasoning = new
+                {
+                    effort = "minimal"
+                }
+            };
             
-            var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
             
             var response = await client.PostAsync(Configuration.Endpoint, content);
             var responseBody = await response.Content.ReadAsStringAsync();
             
             var responseJson = JObject.Parse(responseBody);
-            var text = (string) responseJson.SelectToken("choices[0].message.content");
+
+            if ((string)responseJson["status"] == "incomplete")
+            {
+                chatGui.Print("ChatGPT>> Response incomplete (token limit reached). You can change the token limit using /gpt cfg");
+                return;
+            }
+            
+            var text = (string)responseJson["output_text"];
+
+            if (string.IsNullOrEmpty(text))
+                text = string.Concat(responseJson["output"]? .SelectMany(o => o["content"] ?? new JArray()).Where(c => (string)c["type"] == "output_text").Select(c => (string)c["text"]));
+            
             
             if (text != null)
             {
@@ -155,7 +168,7 @@ namespace xivgpt
             ImGui.SameLine();
             if (ImGui.SmallButton($"{Configuration.Model}"))
             {
-                const string modelsDocs = "https://platform.openai.com/docs/models/gpt-4o";
+                const string modelsDocs = "https://developers.openai.com/api/docs/models/gpt-5-nano";
                 Util.OpenLink(modelsDocs);
             }
             ImGui.Spacing();

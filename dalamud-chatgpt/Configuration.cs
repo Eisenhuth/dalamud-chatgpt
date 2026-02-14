@@ -11,8 +11,8 @@ namespace xivgpt
         public bool ShowPrompt { get; set; }
         public string ApiKey { get; set; } = "";
         public int MaxTokens { get; set; }
-        public const string Endpoint = "https://api.openai.com/v1/chat/completions";
-        public const string Model = "gpt-4o";
+        public const string Endpoint = "https://api.openai.com/v1/responses";
+        public const string Model = "gpt-5-nano";
 
 
         private IDalamudPluginInterface pluginInterface;

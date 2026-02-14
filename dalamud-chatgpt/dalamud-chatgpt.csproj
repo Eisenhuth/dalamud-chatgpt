@@ -10,8 +10,8 @@
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <OutputPath>$(AppData)\Eisenhuth\DalamudDevPlugins\ChatGPTPlugin\</OutputPath>
         <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-        <AssemblyVersion>1.1.2.4</AssemblyVersion>
-        <Version>1.1.2.4</Version>
+        <AssemblyVersion>1.1.2.5</AssemblyVersion>
+        <Version>1.1.2.5</Version>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <PackageProjectUrl>https://github.com/Eisenhuth/dalamud-chatgpt</PackageProjectUrl>
